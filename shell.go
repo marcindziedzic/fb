@@ -15,7 +15,7 @@ func Transform(commands []string) []*exec.Cmd {
 	return result
 }
 
-func TransformSingle(command string) *exec.Cmd {
+func transformSingle(command string) *exec.Cmd {
 	command = strings.TrimSpace(command)
 
 	idx := strings.Index(command, " ")
