@@ -1,0 +1,8 @@
+---
+name: Typical 90/30 minutes session
+session:
+        start:
+                - ps aux | grep skype | awk {print $2} | xargs kill
+                - ps aux | grep chromium-browse | awk {print $2} | xargs kill
+        end:
+                - chromium-browser --profile-directory="Profile 1"
