@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v2"
 )
@@ -27,6 +28,10 @@ func main() {
 	var command string
 	var err error
 
+	now := time.Now()
+	duration := time.Minute * 90
+	timer := time.NewTimer(time.Minute * 90)
+
 	for {
 		_, err = fmt.Scanln(&command)
 		if err != nil {
@@ -36,15 +41,32 @@ func main() {
 		// TODO implement missing steps, store events
 		switch command {
 		case "start", "s":
-			run(config.Session["start"])
+			f1 := makeRunner(config.Session["start"])
+			f2 := makeRunner(config.Session["end"])
+			go runInterchangebly(f1, f2, timer)
 		case "break", "b":
-			run(config.Session["end"])
+			timer.Reset(time.Second * 0)
 		case "interrupt", "i":
 			panic("not yet implemented")
+		case "time", "t":
+			elapsed := time.Since(now)
+			fmt.Println("Time left: ", duration-elapsed)
 		default:
-			panic("unrecognized command")
+			fmt.Println("Command not recognized, try one of `start`, `break`, `interrrupt`, `time` or their first letters")
 		}
 	}
+}
+
+// FIXME looping of sessions
+func runInterchangebly(f1 func(), f2 func(), timer *time.Timer) {
+	f1()
+	<-timer.C
+	f2()
+	fmt.Println("session expired, for next iteration you need to start brand new session")
+}
+
+func makeRunner(sections []string) func() {
+	return func() { run(sections) }
 }
 
 func run(sections []string) {
